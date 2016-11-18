@@ -28,4 +28,16 @@ $(function(){
     });
   }
 
+  getVideo(function(stream){
+    window.localStream = stream;
+    onReceiveStream(stream, 'my-camera');
+  });
+
+  function onReceiveStream(stream, element_id){
+    var video = $('#' + element_id + ' video')[0];
+    video.src = window.URL.createObjectURL(stream);
+    window.peer_stream = stream;
+  }
+
+
 });
