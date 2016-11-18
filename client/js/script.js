@@ -4,7 +4,7 @@ $(function(){
   // function sneding messages finish
   var messages = [];
   var peer_id, name, conn;
-
+ //okos
   var peer = new Peer({
     key: '78flukfdfbcvj9k9',
     debug: 3,
