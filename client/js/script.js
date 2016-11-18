@@ -66,4 +66,16 @@ $(function(){
     $('#connected_peer').text(connection.metadata.username);
   });
 
+  peer.on('call', function(call){
+    onReceiveCall(call);
+  });
+
+  function onReceiveCall(call){
+    call.answer(window.localStream);
+    call.on('stream', function(stream){
+      window.peer_stream = stream;
+      onReceiveStream(stream, 'peer-camera');
+    });
+  }
+
 });
