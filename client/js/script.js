@@ -4,9 +4,7 @@ $(function(){
   var peer_id, name, conn;
 
   var peer = new Peer({
-    host: 'localhost',
-    port: 9000,
-    path: '/peerjs',
+    key: '78flukfdfbcvj9k9',
     debug: 3,
     config: {'iceServers': [
     { url: 'stun:stun1.l.google.com:19302' },
