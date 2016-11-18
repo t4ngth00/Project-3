@@ -28,4 +28,42 @@ $(function(){
     });
   }
 
+  getVideo(function(stream){
+    window.localStream = stream;
+    onReceiveStream(stream, 'my-camera');
+  });
+
+  function onReceiveStream(stream, element_id){
+    var video = $('#' + element_id + ' video')[0];
+    video.src = window.URL.createObjectURL(stream);
+    window.peer_stream = stream;
+  }
+
+  $('#call').click(function(){
+    name = $('#name').val();
+    peer_id = $('#peer_id').val();
+      if(peer_id){
+        conn = peer.connect(peer_id, {metadata: {
+          'username': name
+        }});
+      }
+
+      console.log('now calling: ' + peer_id);
+      console.log(peer);
+      var call = peer.call(peer_id, window.localStream);
+      call.on('stream', function(stream){
+        window.peer_stream = stream;
+        onReceiveStream(stream, 'peer-camera');
+      });
+  });
+
+  peer.on('connection', function(connection){
+    conn = connection;
+    peer_id = connection.peer;
+
+    $('#peer_id').addClass('hidden').val(peer_id);
+    $('#connected_peer_container').removeClass('hidden');
+    $('#connected_peer').text(connection.metadata.username);
+  });
+
 });
