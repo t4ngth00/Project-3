@@ -1,10 +1,10 @@
 $(function(){
 
-  // some global var. var message will be use later as 
+  // some global var. var message will be use later as
   // function sneding messages finish
   var messages = [];
   var peer_id, name, conn;
- //okos
+  
   var peer = new Peer({
     key: '78flukfdfbcvj9k9',
     debug: 3,
@@ -15,7 +15,7 @@ $(function(){
     ]}
   });
 
-  //generate the connection 
+  //generate the connection
   peer.on('open', function(){
     $('#id').text(peer.id);
   });
@@ -61,7 +61,7 @@ $(function(){
   function mediaChange(){
     //this should be separated into 2 functions
   }
- 
+
   // ***End get video stream, now implement call function***
 
   $('#call').click(function(){
