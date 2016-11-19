@@ -84,7 +84,8 @@ $(function(){
         window.peer_stream = stream;
         onReceiveStream(stream, 'peer-camera');
       });
-      
+       $('#call').addClass('hidden');
+       $('#endcall').removeClass('hidden');
   });
 
   //start the connection
@@ -119,19 +120,17 @@ $(function(){
    //be hidden? show user active instead?
    peer = null; 
   })
-  peer.on('close', function(){
-    $('#endcall').addClass('hidden');
-    $('#call').removeClass('hidden');
-  });
 
-  $("#pausecall").toggle(function(){
+  //dont know why this function doesnt work, have to use on 2 functions
+  // peer.on('close', function(){
+  //   $('#endcall').addClass('hidden');
+  //   $('#call').removeClass('hidden');
+  // });
+
+  $("#pausecall").click(function(){
     peer.disconnect();
     $('#pausecall').innerHTML = "Unpause call";
     console.log("DCed");
-  }, function(){
-    peer.reconnect();
-    $('#pausecall').innerHTML = "Pause call";
-    console.log("Rec");
   });
   peer.on('disconnected', function(){
     //save the current state/image of the video
