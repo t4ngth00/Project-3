@@ -14,10 +14,12 @@ $(function(){
       credential: 'muazkh', username: 'webrtc@live.com' }
     ]}
   });
+  $('#endcall').addClass('hidden');
 
   //generate the connection
   peer.on('open', function(){
     $('#id').text(peer.id);
+    console.log(peer.socket.disconnected);
   });
 
   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
@@ -82,6 +84,7 @@ $(function(){
         window.peer_stream = stream;
         onReceiveStream(stream, 'peer-camera');
       });
+      
   });
 
   //start the connection
@@ -105,16 +108,34 @@ $(function(){
       window.peer_stream = stream;
       onReceiveStream(stream, 'peer-camera');
     });
+    $('#call').addClass('hidden');
+    $('#endcall').removeClass('hidden');
   }
 
   //now implement function endCall. close the peer connection
-  // peer.close('call', function(call){
-  //     endCall(call);
-  // });
+  $("#endcall").click(function(call){
+   peer.destroy();
+   //need to fix the UI , when call is ended, the video should
+   //be hidden? show user active instead?
+   peer = null; 
+  })
+  peer.on('close', function(){
+    $('#endcall').addClass('hidden');
+    $('#call').removeClass('hidden');
+  });
 
-  function endCall(call){
-    // hide the end call button, show the call button.
-  }
+  $("#pausecall").toggle(function(){
+    peer.disconnect();
+    $('#pausecall').innerHTML = "Unpause call";
+    console.log("DCed");
+  }, function(){
+    peer.reconnect();
+    $('#pausecall').innerHTML = "Pause call";
+    console.log("Rec");
+  });
+  peer.on('disconnected', function(){
+    //save the current state/image of the video
+  })
 
   // implement disconnected and reconnect function, in case we need the pause. uncomment from 122 to 128
   // peer.on('disconnected', function(){
