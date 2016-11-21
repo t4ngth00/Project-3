@@ -84,7 +84,7 @@ $(function(){
         window.peer_stream = stream;
         onReceiveStream(stream, 'peer-camera');
       });
-      
+
   });
 
   //start the connection
@@ -117,7 +117,7 @@ $(function(){
    peer.destroy();
    //need to fix the UI , when call is ended, the video should
    //be hidden? show user active instead?
-   peer = null; 
+   peer = null;
   })
   peer.on('close', function(){
     $('#endcall').addClass('hidden');
