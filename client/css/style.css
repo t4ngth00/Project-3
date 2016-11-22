@@ -1,87 +1,38 @@
-body {
-  background-color: #F5F5F5;
+/* label color */
+ .input-field label {
+   color: #fff;
+ }
+ /* label focus color */
+ .input-field input[type=text]:focus + label {
+   color: #fff;
+ }
+ /* label underline focus color */
+ .input-field input[type=text]:focus {
+   border-bottom: 1px solid #fff;
+   box-shadow: 0 1px 0 0 #fff;
+ }
+ /* valid color */
+.input-field input[type=text].valid {
+  border-bottom: 1px solid #fff;
+  box-shadow: 0 1px 0 0 #fff;
 }
-
-#wrapper {
-  width: 900px;
-  margin: 0 auto;
+/* invalid color */
+.input-field input[type=text].invalid {
+  border-bottom: 1px solid #fff;
+  box-shadow: 0 1px 0 0 #fff;
 }
-
-h1 {
-  padding-left: 80px;
-  background-color: #E6E6E6;
-}
-
-#messenger-wrapper {
-  width: 350px;
-  float: left;
-}
+ .input-field .prefix.active {
+   color: #fff;
+ }
 
 .hidden {
   display: none;
 }
 
-input[type=text] {
-  margin-bottom: 10px;
-}
 
 .camera {
   text-align: center;
 }
 
 #connect {
-  background-color: #fff;
-  padding: 20px;
-}
-
-#message-container {
-  padding: 20px;
-  background-color: #ccc;
-}
-
-ul#messages {
-  margin: 0;
-}
-
-#message {
-  width: 330px;
-}
-
-span.from {
-  font-weight: bold;
-}
-
-ul#messages li {
-  list-style: none;
-  padding: 10px 0;
-}
-
-#messages-container {
-  background-color: #fff;
-}
-
-#my-camera {
-  float: left;
-  width: 250px;
-  height: 250px;
-}
-
-#peer-camera {
-  float: left;
-  width: 250px;
-  height: 250px;
-}
-
-@media screen and (max-width: 800px){
-  #wrapper {
-    width: 100%;
-  }
-
-  #wrapper > div {
-    width: 100%;
-  }
-
-  #peer-camera, #my-camera {
-    float: none;
-  }
 }

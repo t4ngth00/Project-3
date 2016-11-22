@@ -14,7 +14,7 @@ $(function(){
       credential: 'muazkh', username: 'webrtc@live.com' }
     ]}
   });
-  $('#endcall').addClass('hidden');
+  // $('#endcall').addClass('hidden');
 
   //generate the connection
   peer.on('open', function(){
@@ -86,6 +86,25 @@ $(function(){
       });
        $('#call').addClass('hidden');
        $('#endcall').removeClass('hidden');
+       $('#set-name').removeClass('hidden');
+  });
+
+  $('#set-name').click(function(){
+    name = $('#name').val();
+    peer_id = $('#peer_id').val();
+      if(peer_id){
+        conn = peer.connect(peer_id, {metadata: {
+          'username': name
+        }});
+      }
+      console.log('now calling: ' + peer_id);
+      console.log(peer);
+      //get the target/friend peerID to call
+      var call = peer.call(peer_id, window.localStream);
+      call.on('stream', function(stream){
+        window.peer_stream = stream;
+        onReceiveStream(stream, 'peer-camera');
+      });
   });
 
   //start the connection
@@ -96,6 +115,10 @@ $(function(){
     $('#peer_id').addClass('hidden').val(peer_id);
     $('#connected_peer_container').removeClass('hidden');
     $('#connected_peer').text(connection.metadata.username);
+    $('#call').addClass('hidden');
+    $('#endcall').removeClass('hidden');
+    $('#id-input-field').addClass('hidden');
+    $('#set-name').removeClass('hidden');
   });
 
   peer.on('call', function(call){
@@ -109,39 +132,12 @@ $(function(){
       window.peer_stream = stream;
       onReceiveStream(stream, 'peer-camera');
     });
-    $('#call').addClass('hidden');
-    $('#endcall').removeClass('hidden');
   }
 
   //now implement function endCall. close the peer connection
   $("#endcall").click(function(call){
    peer.destroy();
-   //need to fix the UI , when call is ended, the video should
-   //be hidden? show user active instead?
    peer = null;
   })
 
-  //dont know why this function doesnt work, have to use on 2 functions
-  // peer.on('close', function(){
-  //   $('#endcall').addClass('hidden');
-  //   $('#call').removeClass('hidden');
-  // });
-
-  $("#pausecall").click(function(){
-    peer.disconnect();
-    $('#pausecall').innerHTML = "Unpause call";
-    console.log("DCed");
-  });
-  peer.on('disconnected', function(){
-    //save the current state/image of the video
-  })
-
-  // implement disconnected and reconnect function, in case we need the pause. uncomment from 122 to 128
-  // peer.on('disconnected', function(){
-  //     // Emitted when the peer is disconnected from the signalling server,
-  //     // either manually or because the connection to the signalling server was lost
- // http://peerjs.com/docs/ read the docs for more info
-  //     //then try to reconnect with this function
-  //     peer.reconnect();
-  // })
 });
