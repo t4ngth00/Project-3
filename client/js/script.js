@@ -114,10 +114,11 @@ $(function(){
 
     $('#peer_id').addClass('hidden').val(peer_id);
     $('#connected_peer_container').removeClass('hidden');
+    $('#id-input-field').addClass('hidden');
     $('#connected_peer').text(connection.metadata.username);
+
     $('#call').addClass('hidden');
     $('#endcall').removeClass('hidden');
-    $('#id-input-field').addClass('hidden');
     $('#set-name').removeClass('hidden');
   });
 
