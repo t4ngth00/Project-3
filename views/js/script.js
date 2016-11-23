@@ -1,11 +1,11 @@
 $(function(){
 
   // some global var. var message will be use later as
-  // function sneding messages finish
+  // function sending messages finish
   var messages = [];
   var peer_id, name, conn;
 
-  var peer = new Peer({
+  var peer = new Peer('hehe' ,{
     key: '78flukfdfbcvj9k9',
     debug: 3,
     config: {'iceServers': [
@@ -14,9 +14,8 @@ $(function(){
       credential: 'muazkh', username: 'webrtc@live.com' }
     ]}
   });
-  // $('#endcall').addClass('hidden');
 
-  //generate the connection
+  //generate the id the connection
   peer.on('open', function(){
     $('#id').text(peer.id);
     console.log(peer.socket.disconnected);
@@ -31,7 +30,7 @@ $(function(){
     });
   }
 
-    // success callback
+  // success callback
   getVideo(function(stream){
     window.localStream = stream;
     // get the stream by video Id defined in client
@@ -45,30 +44,13 @@ $(function(){
     window.peer_stream = stream;
   }
 
-  //get, change video resolution
-  function changeMyVideoResolution(){
+// ***End get video stream, now implement call function***
 
-  }
-
-  function changePeerVideoResolution(){
-
-  }
-
-  //user can capture image
-  function captureImage(){
-
-  }
-
-  //user can turn off the video, or mute the mic
-  function mediaChange(){
-    //this should be separated into 2 functions
-  }
-
-  // ***End get video stream, now implement call function***
 
   $('#call').click(function(){
     name = $('#name').val();
     peer_id = $('#peer_id').val();
+
       if(peer_id){
         conn = peer.connect(peer_id, {metadata: {
           'username': name
@@ -84,6 +66,7 @@ $(function(){
         window.peer_stream = stream;
         onReceiveStream(stream, 'peer-camera');
       });
+
        $('#call').addClass('hidden');
        $('#endcall').removeClass('hidden');
        $('#set-name').removeClass('hidden');
@@ -107,7 +90,7 @@ $(function(){
       });
   });
 
-  //start the connection
+//start the connection
   peer.on('connection', function(connection){
     conn = connection;
     peer_id = connection.peer;
@@ -126,7 +109,7 @@ $(function(){
     onReceiveCall(call);
   });
 
-  // run call received function
+// run received function
   function onReceiveCall(call){
     call.answer(window.localStream);
     call.on('stream', function(stream){
@@ -135,7 +118,7 @@ $(function(){
     });
   }
 
-  //now implement function endCall. close the peer connection
+//now implement endCall function. close the peer connection
   $("#endcall").click(function(call){
    peer.destroy();
    peer = null;
