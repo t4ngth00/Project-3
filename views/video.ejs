@@ -18,12 +18,11 @@
   	<link href="css/style.css" rel="stylesheet">
     <script>
       $(function(){
-        // some global var. var message will be use later as
-        // function sending messages finish
-        var messages = [];
+        // some global var.
         var peer_id, conn;
         var your_id = '<%=user.local.email %>'; console.log(your_id);
 
+        // peer server configuration
         var peer = new Peer( your_id, {
             key: '78flukfdfbcvj9k9',
             debug: 3,
@@ -34,29 +33,29 @@
             ]}
           });
 
-        //generate the id the connection
+        // generate the id of current user
         peer.on('open', function(){
           $('#id').text(peer.id);
           console.log(peer.socket.disconnected);
         });
 
+        // get video configuration
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
         function getVideo(callback){
           navigator.getUserMedia({audio: true, video: true}, callback, function(error){
             console.log(error);
-            alert('An error occured. Please try again');
+            alert('An error occured when taking video and audio. Please try again');
           });
         }
-        // success callback
+        // get video of current user
         getVideo(function(stream){
           window.localStream = stream;
-        // get the stream by video Id defined in client
           onReceiveStream(stream, 'my-camera');
         });
 
         function onReceiveStream(stream, element_id){
           var video = $('#' + element_id + ' video')[0];
-          // create blob objectURl
+
           video.src = window.URL.createObjectURL(stream);
           window.peer_stream = stream;
         }
@@ -65,69 +64,53 @@
 
         $('#call').click(function(){
           peer_id = $('#peer_id').val();
-
             if(peer_id){
-              conn = peer.connect(peer_id, {metadata: {
-                'username': your_id
-              }});
+              conn = peer.connect(peer_id, {metadata: {'username': your_id} });
             }
-            console.log('now calling: ' + peer_id);
-            console.log(peer);
-
-            //get the target/friend peerID to call
+          // Call a friend, providing our mediaStream
             var call = peer.call(peer_id, window.localStream);
             call.on('stream', function(stream){
+
+              $('#calling_peer_id').text(peer_id);
+              $('#callingUI').modal('open');
               window.peer_stream = stream;
               onReceiveStream(stream, 'peer-camera');
-            });
 
-             $('#call').addClass('hidden');
-             $('#endcall').removeClass('hidden');
-             $('#set-name').removeClass('hidden');
-             $('#peer-camera').removeClass('hidden');
-        });
-
-        $('#set-name').click(function(){
-          peer_id = $('#peer_id').val();
-            if(peer_id){
-              conn = peer.connect(peer_id, {metadata: {
-                'username': your_id
-              }});
-            }
-            console.log('now calling: ' + peer_id);
-            console.log(peer);
-            //get the target/friend peerID to call
-            var call = peer.call(peer_id, window.localStream);
-            call.on('stream', function(stream){
-              window.peer_stream = stream;
-              onReceiveStream(stream, 'peer-camera');
+              $('#call').addClass('hide');
+              $('#endcall').removeClass('hide');
+              $('#set-name').removeClass('hide');
+              $('#peer-camera').removeClass('hide');
             });
         });
-
-      //start the connection
+      // start the connection for both
         peer.on('connection', function(connection){
           conn = connection;
           peer_id = connection.peer;
 
-          $('#peer_id').addClass('hidden').val(peer_id);
-          $('#connected_peer_container').removeClass('hidden');
-          $('#id-input-field').addClass('hidden');
+          $('#peer_id').addClass('hide').val(peer_id);
+          $('#connected_peer_container').removeClass('hide');
+          $('#friend-input-field').addClass('hide');
+
+          // data for imcoming call
           $('#connected_peer').text(connection.metadata.username);
+          $('#connected_peer_answering').text(connection.metadata.username);
 
-          $('#call').addClass('hidden');
-          $('#endcall').removeClass('hidden');
-          $('#set-name').removeClass('hidden');
-          $('#peer-camera').removeClass('hidden');
+          $('#call').addClass('hide');
+          $('#endcall').removeClass('hide');
+          $('#set-name').removeClass('hide');
+          $('#peer-camera').removeClass('hide');
+
         });
-
+      // answer the incoming call
         peer.on('call', function(call){
-          onReceiveCall(call);
+            onReceiveCall(call);
         });
 
       // run received function
         function onReceiveCall(call){
           call.answer(window.localStream);
           call.on('stream', function(stream){
+            $('#answeringUI').modal('open');
             window.peer_stream = stream;
             onReceiveStream(stream, 'peer-camera');
           });
@@ -139,50 +122,52 @@
            peer = null;
            window.location.reload();
         })
-      // side menus
-        $('#button-collapse').sideNav({
-            menuWidth: 300, // Default is 240
-            edge: 'right', // Choose the horizontal origin
-            closeOnClick: true, // Closes side-nav on <a> clicks, useful for Angular/Meteor
-            draggable: true // Choose whether you can drag to open on touch screens
-          }
-        );
-      // modal
-        $(document).ready(function(){
-          // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
-          $('.modal').modal();
+
+        peer.on('close', function() {
+          console.log(peer.socket.disconnected);
         });
 
+      // modal configuration
+        $('.modal').modal({
+            dismissible: true, // Modal can be dismissed by clicking outside of the modal
+            opacity: .8, // Opacity of modal background
+            in_duration: 300, // Transition in duration
+            out_duration: 200, // Transition out duration
+            starting_top: '20%', // Starting top style attribute
+            ending_top: '30%'
+          }
+        );
       });
     </script>
   </head>
   <body>
-      <!-- side menu -->
-      <ul id="slide-out" class="side-nav">
-        <li><div class="userView">
-          <div class="background">
-            <img src="images/office.jpg">
-          </div>
-          <a href="#!user"><img class="circle" src="images/yuna.jpg"></a>
-          <a href="#!name"><span class="white-text name">John Doe</span></a>
-          <a href="#!email"><span class="white-text email">jdandturk@gmail.com</span></a>
-        </div></li>
-        <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
-        <li><a href="#!">Second Link</a></li>
-        <li><div class="divider"></div></li>
-        <li><a class="subheader">Subheader</a></li>
-        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
-      </ul>
-      <!-- accept, decline call UI -->
-      <div id="modal1" class="modal modal-fixed-footer">
+      <!-- calling UI -->
+      <div id="callingUI" class="modal blue-grey darken-4">
         <div class="modal-content">
-          <h4>Modal Header</h4>
-          <p>A bunch of text</p>
+          <h3 class="center-align white-text">Your connection to </br><span class="green-text" id="calling_peer_id"></span> is ready</h3>
+          <h3 class="center-align white-text">You can talk now :)</h3>
         </div>
-        <div class="modal-footer">
-          <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat ">Agree</a>
+        <div class="progress grey lighten-3">
+          <div class="indeterminate light-green"></div>
+        </div>
+        <div class="modal-footer blue-grey darken-3">
+          <a href="#" class="modal-action modal-close waves-effect btn light-green">Close</a>
         </div>
       </div>
+
+      <!-- Accept, decline call UI -->
+      <div id="answeringUI" class="modal blue-grey darken-4">
+        <div class="modal-content">
+          <h3 class="center-align white-text">Incoming call from</br><span class="green-text" id="connected_peer_answering"></span></h3>
+        </div>
+        <div class="progress grey lighten-3">
+          <div class="indeterminate light-green"></div>
+        </div>
+        <div class="modal-footer blue-grey darken-3">
+          <a href="#" id="accept" class="modal-action modal-close waves-effect btn light-green">Close</a>
+        </div>
+      </div>
+
       <!-- navigation bar -->
       <ul id="dropdown-user" class="dropdown-content">
         <li><a href="/profile">Profile</a></li>
@@ -191,29 +176,27 @@
       </ul>
       <nav>
         <div class="nav-wrapper blue-grey darken-3 ">
-          <a href="" class="brand-logo ">Free2Call</a>
+          <a href="" class="brand-logo ">FreeToCall</a>
           <ul class="right hide-on-med-and-down">
-            <li><button data-target="modal1" class="btn">Modal</button></li>
-            <li><a href="" data-activates="slide-out" id="button-collapse"><i class="material-icons">menu</i></a></li>
-            <li><a href="/tutorial">Tutorial</a></li>
+
             <li><a class="dropdown-button" href="/profile" data-activates="dropdown-user">
-                <i class="material-icons left">perm_identity</i>
-                <span class="bold"> <%=user.local.email %> </span></a>
+                <i class="material-icons left light-green-text lighten-1">perm_identity</i>
+                <span class="bold light-green-text lighten-1 "> <%=user.local.email %> </span></a>
             </li>
           </ul>
         </div>
       </nav>
       <div class="row">
         <!-- Display the video of the remote peer -->
-        <div class="col s6">
+        <div class="col s5">
             <div class="card white-text">
-              <div class="hidden" id="peer-camera">
+              <div class="hide" id="peer-camera">
                 <video class="responsive-video" controls autoplay></video>
               </div>
             </div>
         </div>
-        <!-- Display the video of the remote peer -->
-        <div class="col s3">
+        <!-- Display something -->
+        <div class="col s4">
           <div class="card white-text">
             <div class="card-content white-text">
               <div class="" id="">
@@ -225,13 +208,13 @@
         <div class="col s3">
           <div class="card blue-grey darken-3">
             <div class="card-content white-text">
-                  <h5 class="light-green-text lighten-1">Share your <a class="white-text">"Username"</a> to Make a Call</h5>
+                  <h5  class="light-green-text lighten-1"><a class="white-text">Your username: </a><b><span id="id"></span></b></h5>
 
-                  <div class="input-field" id="id-input-field">
+                  <div class="input-field" id="friend-input-field">
                     <input id="peer_id" type="text" class="validate">
                     <label for="last_name">Friend's Name</label>
                   </div>
-                  <div id="connected_peer_container">
+                  <div id="connected_peer_container" class="hide">
                     Connected to :
                     <span class="light-green-text lighten-1" id="connected_peer"></span>
                   </div>
@@ -240,10 +223,7 @@
                   <a id="call" class="btn-floating btn-large waves-effect waves-light light-green darken-1">
                     <i class="material-icons">phone</i>
                   </a>
-                  <a id="set-name" class="btn-floating btn-large waves-effect waves-light light-green darken-1 hidden">
-                    <i class="material-icons">add</i>
-                  </a>
-                  <a id="endcall" class="btn-floating btn-large waves-effect waves-light red darken-1 hidden">
+                  <a id="endcall" class="btn-floating btn-large waves-effect waves-light red darken-1 hide">
                     <i class="material-icons">call_end</i>
                   </a>
                 </div>
