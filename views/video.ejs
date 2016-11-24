@@ -16,16 +16,148 @@
     <script src="http://cdn.peerjs.com/0.3/peer.js"></script>
   	<!-- Import custom css and js -->
   	<link href="css/style.css" rel="stylesheet">
-  	<script src="js/script.js"></script>
+    <script>
+      $(function(){
+        // some global var. var message will be use later as
+        // function sending messages finish
+        var messages = [];
+        var peer_id, conn;
+        var id = '<%=user.local.email %>';
+        console.log(id);
+        var peer = new Peer( id, {
+            key: '78flukfdfbcvj9k9',
+            debug: 3,
+            config: {'iceServers': [
+            { url: 'stun:stun1.l.google.com:19302' },
+            { url: 'turn:numb.viagenie.ca',
+              credential: 'muazkh', username: 'webrtc@live.com' }
+            ]}
+          });
+
+        //generate the id the connection
+        peer.on('open', function(){
+          $('#id').text(peer.id);
+          console.log(peer.socket.disconnected);
+        });
+
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        function getVideo(callback){
+          navigator.getUserMedia({audio: true, video: true}, callback, function(error){
+            console.log(error);
+            alert('An error occured. Please try again');
+          });
+        }
+        // success callback
+        getVideo(function(stream){
+          window.localStream = stream;
+        // get the stream by video Id defined in client
+          onReceiveStream(stream, 'my-camera');
+        });
+
+        function onReceiveStream(stream, element_id){
+          var video = $('#' + element_id + ' video')[0];
+          // create blob objectURl
+          video.src = window.URL.createObjectURL(stream);
+          window.peer_stream = stream;
+        }
+
+      // ***End get video stream, now implement call function***
+
+        $('#call').click(function(){
+          name = $('#name').val();
+          peer_id = $('#peer_id').val();
+
+            if(peer_id){
+              conn = peer.connect(peer_id, {metadata: {
+                'username': name
+              }});
+            }
+            console.log('now calling: ' + peer_id);
+            console.log(peer);
+
+            //get the target/friend peerID to call
+            var call = peer.call(peer_id, window.localStream);
+            call.on('stream', function(stream){
+              window.peer_stream = stream;
+              onReceiveStream(stream, 'peer-camera');
+            });
+
+             $('#call').addClass('hidden');
+             $('#endcall').removeClass('hidden');
+             $('#set-name').removeClass('hidden');
+        });
+
+        $('#set-name').click(function(){
+          name = $('#name').val();
+          peer_id = $('#peer_id').val();
+            if(peer_id){
+              conn = peer.connect(peer_id, {metadata: {
+                'username': name
+              }});
+            }
+            console.log('now calling: ' + peer_id);
+            console.log(peer);
+            //get the target/friend peerID to call
+            var call = peer.call(peer_id, window.localStream);
+            call.on('stream', function(stream){
+              window.peer_stream = stream;
+              onReceiveStream(stream, 'peer-camera');
+            });
+        });
+
+      //start the connection
+        peer.on('connection', function(connection){
+          conn = connection;
+          peer_id = connection.peer;
+
+          $('#peer_id').addClass('hidden').val(peer_id);
+          $('#connected_peer_container').removeClass('hidden');
+          $('#id-input-field').addClass('hidden');
+          $('#connected_peer').text(connection.metadata.username);
+
+          $('#call').addClass('hidden');
+          $('#endcall').removeClass('hidden');
+          $('#set-name').removeClass('hidden');
+        });
+
+        peer.on('call', function(call){
+          onReceiveCall(call);
+        });
+
+      // run received function
+        function onReceiveCall(call){
+          call.answer(window.localStream);
+          call.on('stream', function(stream){
+            window.peer_stream = stream;
+            onReceiveStream(stream, 'peer-camera');
+          });
+        }
+
+      //now implement endCall function. close the peer connection
+        $("#endcall").click(function(call){
+         peer.destroy();
+         peer = null;
+        })
+      });
+    </script>
   </head>
   <body>
+
       <!-- navigation bar -->
+      <ul id="dropdown-user" class="dropdown-content">
+        <li><a href="/profile">Profile</a></li>
+        <li class="divider"></li>
+        <li><a href="/logout">Logout</a></li>
+      </ul>
       <nav>
-        <div class="nav-wrapper light-green darken-1">
-          <a href="#" class="brand-logo center">Video call application</a>
+        <div class="nav-wrapper blue-grey darken-3 ">
+          <a href="" class="brand-logo ">Video call application</a>
           <ul class="right hide-on-med-and-down">
-            <li><a href="sass.html">Tutorial</a></li>
-            <li><a href="badges.html">Login</a></li>
+            <li><a href="/tutorial">Tutorial</a></li>
+            <li><a class="dropdown-button" href="/profile" data-activates="dropdown-user">
+                <i class="material-icons left">perm_identity</i>
+                <span class="bold"> <%=user.local.email %> </span></a>
+            </li>
           </ul>
         </div>
       </nav>
@@ -46,14 +178,11 @@
             <div class="card-content white-text">
               <div id="connect">
                 <div class="">
-                  <span class="card-panel white black-text m1">Your ID:</span>
+                  <span class="card-panel white black-text m1">Welcome:</span>
                   <span class="card-panel white black-text" id="id"></span>
                 </div>
                 <div class="card-content">
-                  <div class="input-field">
-                    <input id="name" type="text" class="validate">
-                    <label for="last_name">UserName</label>
-                  </div>
+                  <p>Share this name for others can call you</p>
                   <div class="input-field" id="id-input-field">
                     <input id="peer_id" type="text" class="validate">
                     <label for="last_name">Friend's ID</label>
