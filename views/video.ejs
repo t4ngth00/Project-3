@@ -22,9 +22,9 @@
         // function sending messages finish
         var messages = [];
         var peer_id, conn;
-        var id = '<%=user.local.email %>';
-        console.log(id);
-        var peer = new Peer( id, {
+        var your_id = '<%=user.local.email %>'; console.log(your_id);
+
+        var peer = new Peer( your_id, {
             key: '78flukfdfbcvj9k9',
             debug: 3,
             config: {'iceServers': [
@@ -64,12 +64,11 @@
       // ***End get video stream, now implement call function***
 
         $('#call').click(function(){
-          name = $('#name').val();
           peer_id = $('#peer_id').val();
 
             if(peer_id){
               conn = peer.connect(peer_id, {metadata: {
-                'username': name
+                'username': your_id
               }});
             }
             console.log('now calling: ' + peer_id);
@@ -85,14 +84,14 @@
              $('#call').addClass('hidden');
              $('#endcall').removeClass('hidden');
              $('#set-name').removeClass('hidden');
+             $('#peer-camera').removeClass('hidden');
         });
 
         $('#set-name').click(function(){
-          name = $('#name').val();
           peer_id = $('#peer_id').val();
             if(peer_id){
               conn = peer.connect(peer_id, {metadata: {
-                'username': name
+                'username': your_id
               }});
             }
             console.log('now calling: ' + peer_id);
@@ -118,6 +117,7 @@
           $('#call').addClass('hidden');
           $('#endcall').removeClass('hidden');
           $('#set-name').removeClass('hidden');
+          $('#peer-camera').removeClass('hidden');
         });
 
         peer.on('call', function(call){
@@ -135,14 +135,54 @@
 
       //now implement endCall function. close the peer connection
         $("#endcall").click(function(call){
-         peer.destroy();
-         peer = null;
+           peer.destroy();
+           peer = null;
+           window.location.reload();
         })
+      // side menus
+        $('#button-collapse').sideNav({
+            menuWidth: 300, // Default is 240
+            edge: 'right', // Choose the horizontal origin
+            closeOnClick: true, // Closes side-nav on <a> clicks, useful for Angular/Meteor
+            draggable: true // Choose whether you can drag to open on touch screens
+          }
+        );
+      // modal
+        $(document).ready(function(){
+          // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+          $('.modal').modal();
+        });
+
       });
     </script>
   </head>
   <body>
-
+      <!-- side menu -->
+      <ul id="slide-out" class="side-nav">
+        <li><div class="userView">
+          <div class="background">
+            <img src="images/office.jpg">
+          </div>
+          <a href="#!user"><img class="circle" src="images/yuna.jpg"></a>
+          <a href="#!name"><span class="white-text name">John Doe</span></a>
+          <a href="#!email"><span class="white-text email">jdandturk@gmail.com</span></a>
+        </div></li>
+        <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
+        <li><a href="#!">Second Link</a></li>
+        <li><div class="divider"></div></li>
+        <li><a class="subheader">Subheader</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+      </ul>
+      <!-- accept, decline call UI -->
+      <div id="modal1" class="modal modal-fixed-footer">
+        <div class="modal-content">
+          <h4>Modal Header</h4>
+          <p>A bunch of text</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat ">Agree</a>
+        </div>
+      </div>
       <!-- navigation bar -->
       <ul id="dropdown-user" class="dropdown-content">
         <li><a href="/profile">Profile</a></li>
@@ -151,8 +191,10 @@
       </ul>
       <nav>
         <div class="nav-wrapper blue-grey darken-3 ">
-          <a href="" class="brand-logo ">Video call application</a>
+          <a href="" class="brand-logo ">Free2Call</a>
           <ul class="right hide-on-med-and-down">
+            <li><button data-target="modal1" class="btn">Modal</button></li>
+            <li><a href="" data-activates="slide-out" id="button-collapse"><i class="material-icons">menu</i></a></li>
             <li><a href="/tutorial">Tutorial</a></li>
             <li><a class="dropdown-button" href="/profile" data-activates="dropdown-user">
                 <i class="material-icons left">perm_identity</i>
@@ -163,40 +205,48 @@
       </nav>
       <div class="row">
         <!-- Display the video of the remote peer -->
-        <div class="col s9">
-          <div class="card">
-            <div class="card-content white-text">
-              <div id="peer-camera">
+        <div class="col s6">
+            <div class="card white-text">
+              <div class="hidden" id="peer-camera">
                 <video class="responsive-video" controls autoplay></video>
+              </div>
+            </div>
+        </div>
+        <!-- Display the video of the remote peer -->
+        <div class="col s3">
+          <div class="card white-text">
+            <div class="card-content white-text">
+              <div class="" id="">
               </div>
             </div>
           </div>
         </div>
         <!-- Display main part of the application -->
         <div class="col s3">
-          <div class="card card-panel blue-grey">
+          <div class="card blue-grey darken-3">
             <div class="card-content white-text">
-              <div id="connect">
-                <div class="">
-                  <span class="card-panel white black-text m1">Welcome:</span>
-                  <span class="card-panel white black-text" id="id"></span>
-                </div>
-                <div class="card-content">
-                  <p>Share this name for others can call you</p>
+                  <h5 class="light-green-text lighten-1">Share your <a class="white-text">"Username"</a> to Make a Call</h5>
+
                   <div class="input-field" id="id-input-field">
                     <input id="peer_id" type="text" class="validate">
-                    <label for="last_name">Friend's ID</label>
+                    <label for="last_name">Friend's Name</label>
                   </div>
                   <div id="connected_peer_container">
-                    Connected to:
-                    <span id="connected_peer"></span>
+                    Connected to :
+                    <span class="light-green-text lighten-1" id="connected_peer"></span>
                   </div>
+                </br>
+                <div class="card-image">
+                  <a id="call" class="btn-floating btn-large waves-effect waves-light light-green darken-1">
+                    <i class="material-icons">phone</i>
+                  </a>
+                  <a id="set-name" class="btn-floating btn-large waves-effect waves-light light-green darken-1 hidden">
+                    <i class="material-icons">add</i>
+                  </a>
+                  <a id="endcall" class="btn-floating btn-large waves-effect waves-light red darken-1 hidden">
+                    <i class="material-icons">call_end</i>
+                  </a>
                 </div>
-                <button class="waves-effect light-green darken-1 btn hidden" id="set-name">set name</button>
-                <button class="waves-effect light-green darken-1 btn" id="call">Call</button>
-                <button class="waves-effect red darken-1 btn" id="endcall">End call</button>
-
-              </div>
             </div>
           </div>
           <!-- Display video of the current user -->

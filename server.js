@@ -1,4 +1,4 @@
-  // client.js
+  // server.js
 
   // set up ======================================================================
   // get all the tools we need
@@ -45,5 +45,3 @@
   // launch ======================================================================
   app.listen(port);
   console.log('Video call application is running on port: ' + port);
-
-    //Store all HTML, css, js files in client folder.
